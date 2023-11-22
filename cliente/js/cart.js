@@ -6,9 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
   //Fetch para la información del carrito de compras
   getJSONData(CART_INFO_URL).then(function (resultObj) {
     if (resultObj.status === 'ok') {
-      let productos = JSON.parse(localStorage.getItem('carrito')) || []
-      productos.push(resultObj.data.articles[0])
-      showCartItems(productos)
+      showCartItems(resultObj.data)
     }
   })
 })
@@ -29,39 +27,34 @@ function validarNegativo(valor) {
 
 function showCartItems(array) {
   const cartItems = document.getElementById('cartItems')
-  array.forEach((element) => {
-    // Crea la fila de la tabla
+
+  for (let i = 0; i < array.length; i++) {
+    console.log(array[i])
+    const image = JSON.parse(array[i].images)[0]
+    console.log(array[i].cost)
     cartItems.innerHTML += `
     <div class="row align-items-center text-center g-3 my-1 border-bottom">
       <div class="col-6 col-md-2">
-        <img src=${element.image} class="img-fluid rounded" alt="Producto">
+        <img src="${image}" class="img-fluid rounded" alt="Producto">
       </div>
       <div class="col-6 col-md-2">
-        <h4>${element.name}</h4>
+        <h4>${array[i].name}</h4>
       </div>
       <div class="col-6 col-md-2">
-        <h5>${element.currency} ${element.unitCost}</h5>
+        <h5>${array[i].currency} ${array[i].cost}</h5>
       </div>
       <div class="col-6 col-md-2">
-        <input id="${element.id}" type="number" class="form-control" value="${
-      element.count
-    }" min="1" onchange="validarNegativo(this); calcSubTotal(this, ${
-      element.unitCost
-    }, ${element.id}); calcTotal()">
+        <input id="${array[i].id}" type="number" class="form-control" value="${array[i].quantity}" min="1" onchange="validarNegativo(this); calcSubTotal(this, ${array[i].cost}, ${array[i].id}); calcTotal()">
       </div>
       <div class="col-6 col-md-2">
-        <h5>${element.currency} <span class="${element.id} subtotal">${
-      element.count * element.unitCost
-    }</span></h5>
+        <h5>${array[i].currency} <span class="${array[i].id} subtotal">${array[i].cost}</span></h5>
       </div>
       <div class="col-6 col-md-2">
-        <button class="btn btn-danger botones" value="${
-          element.id
-        }" onclick="removeProduct(this, ${element.id})">Eliminar</button>
+        <button class="btn btn-danger botones" value="${array[i].id}" onclick="removeProduct(this, ${array[i].id})">Eliminar</button>
       </div>
     </div>
     `
-  })
+  }
   calcTotal()
 }
 

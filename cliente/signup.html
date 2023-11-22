@@ -23,17 +23,34 @@
       >
         <h1>Sign Up</h1>
         <p>Just a few things to get started</p>
-        <form>
+
+
+
+        <form id="signupForm">
           <div class="form-floating mb-4">
             <input
               type="text"
               class="form-control"
-              id="fullName"
+              id="firstName"
               placeholder="Full Name"
+              required
             />
-            <label for="fullName">Full Name</label>
+            <label for="firstName">First Name</label>
             <div class="invalid-feedback text-start">
               Please provide a valid name.
+            </div>
+          </div>
+          <div class="form-floating mb-4">
+            <input
+              type="text"
+              class="form-control"
+              id="lastName"
+              placeholder="lastName"
+              required
+            />
+            <label for="lastName">Last Name</label>
+            <div class="invalid-feedback text-start">
+              Please provide a valid last name.
             </div>
           </div>
           <div class="form-floating pb-4">
@@ -42,6 +59,7 @@
               class="form-control"
               id="email"
               placeholder="Email"
+              required
             />
             <label for="email">Email</label>
             <div class="invalid-feedback text-start">
@@ -54,6 +72,7 @@
               class="form-control"
               id="pass"
               placeholder="Password"
+              required
             />
             <label for="pass">Password</label>
             <div class="invalid-feedback text-start">
@@ -61,7 +80,7 @@
             </div>
           </div>
           <button
-            type="button"
+            type="submit"
             id="signUpButton"
             class="btn btn-secondary w-50 mb-3"
           >

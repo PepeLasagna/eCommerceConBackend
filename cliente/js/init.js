@@ -5,14 +5,9 @@ const PROD_ID = localStorage.getItem('prodID')
 const CATEGORIES_URL = 'http://localhost:3000/categories'
 const PRODUCTS_URL = `http://localhost:3000/products/${CAT_ID}`
 const PRODUCT_INFO_URL = `http://localhost:3000/product-info/${PROD_ID}`
+const CART_INFO_URL = 'http://localhost:3000/cart/1'
 
-// const PUBLISH_PRODUCT_URL =
-//   'https://japceibal.github.io/emercado-api/sell/publish.json'
-// const PRODUCT_INFO_COMMENTS_URL = `https://japceibal.github.io/emercado-api/products_comments/${PROD_ID}.json`
-// const CART_INFO_URL =
-//   'https://japceibal.github.io/emercado-api/user_cart/25801.json'
-// const CART_BUY_URL = 'https://japceibal.github.io/emercado-api/cart/buy.json'
-// const EXT_TYPE = '.json'
+const USER_INFO = 'http://localhost:3000/users'
 
 // Se encarga de mostrar u ocultar un spinner en la página
 let showSpinner = function () {
@@ -57,9 +52,8 @@ function getUserStatus() {
 }
 
 // Muestra el nombre de usuario en el navbar
-function showUser() {
-  let firstName = JSON.parse(localStorage.getItem('currentUser')).firstName
-  document.getElementById('user').innerHTML = 'Hola, ' + firstName
+function showUser(name) {
+  document.getElementById('user').innerHTML = 'Hola, ' + name
 }
 
 // Funciones encargadas de los temas claro-oscuro
