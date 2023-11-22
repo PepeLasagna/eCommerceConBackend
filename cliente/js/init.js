@@ -6,7 +6,6 @@ const CATEGORIES_URL = 'http://localhost:3000/categories'
 const PRODUCTS_URL = `http://localhost:3000/products/${CAT_ID}`
 const PRODUCT_INFO_URL = `http://localhost:3000/product-info/${PROD_ID}`
 const CART_INFO_URL = 'http://localhost:3000/cart/1'
-
 const USER_INFO = 'http://localhost:3000/users'
 
 // Se encarga de mostrar u ocultar un spinner en la página
@@ -46,9 +45,22 @@ let getJSONData = function (url) {
 
 // Valida que el usuario esté logueado
 function getUserStatus() {
-  if (!localStorage.getItem('userStatus')) {
+  if (!localStorage.getItem('token')) {
     window.location.href = 'login.html'
   }
+}
+
+function getUser() {
+  const token = JSON.parse(localStorage.getItem('token'))
+  fetch(USER_INFO, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      authorization: token,
+    },
+  })
+    .then((res) => res.json())
+    .then((data) => showUser(data[0].first_name))
 }
 
 // Muestra el nombre de usuario en el navbar

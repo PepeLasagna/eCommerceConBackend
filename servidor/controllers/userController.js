@@ -17,23 +17,16 @@ const getUser = async (req, res) => {
 
 const getUserByToken = async (req, res) => {
   const token = req.headers.authorization
-  console.log(token)
   if (!token) {
     return res.status(401).json({ error: 'No token provided' })
   }
-  jwt.verify(token, process.env.SECRET ?? secretKey, (err, decoded) => {
-    if (err) {
-      console.log(err)
-      return res.status(401).json({ error: 'Invalid token' })
-    }
-    const currentUser = userModel.getUserByToken(decoded)
-    console.log(currentUser)
-    if (currentUser) {
-      res.json(currentUser)
-    } else {
-      res.status(404).json({ error: 'No se ha encontrado el usuario' })
-    }
-  })
+  const email = jwt.verify(token, process.env.SECRET ?? secretKey)
+  const currentUser = await userModel.getUserByToken(email)
+  if (currentUser) {
+    res.json(currentUser)
+  } else {
+    res.status(401).json({ error: 'Invalid token' })
+  }
 }
 
 const createUser = async (req, res) => {

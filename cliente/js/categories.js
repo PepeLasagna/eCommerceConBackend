@@ -110,6 +110,7 @@ function sortAndShowCategories(sortCriteria, categoriesArray) {
 }
 
 document.addEventListener("DOMContentLoaded", function (e) {
+  getUser()
   getUserStatus();
   showUser();
   temaActivo();

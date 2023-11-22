@@ -12,13 +12,13 @@ const pool = mariadb.createPool({
   connectionLimit: '5',
 })
 
-const getUserByToken = async (user) => {
+const getUserByToken = async (email) => {
   let conn
   try {
     conn = await pool.getConnection()
     const foundUser = await conn.query(
-      'SELECT first_name, second_name, last_name, second_last_name, email, password, phone, avatar FROM users WHERE email=? AND password=?',
-      [user.email, user.password]
+      'SELECT first_name, second_name, last_name, second_last_name, email, password, phone, avatar FROM users WHERE email=?',
+      [email]
     )
     if (foundUser.length > 0) {
       return foundUser

@@ -180,6 +180,7 @@ function productoRelacionado(data) {
 }
 
 document.addEventListener("DOMContentLoaded", function (e) {
+  getUser()
   getUserStatus();
   showUser();
   temaActivo();
