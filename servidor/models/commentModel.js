@@ -12,9 +12,8 @@ const getComments = async (id) => {
   let conn
   try {
     conn = await pool.getConnection()
-    const [comments] = await conn.query(
-      'SELECT * FROM comments WHERE prod_id = ?',
-      [id]
+    const comments = await conn.query(
+      'SELECT c.score, c.description, c.date_time, users.email AS email, users.first_name AS first_name FROM comments c JOIN users ON c.user_id = users.id WHERE c.prod_id = ?', [id] 
     )
     return comments
   } catch (error) {

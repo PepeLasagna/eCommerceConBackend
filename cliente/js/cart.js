@@ -30,9 +30,7 @@ function showCartItems(array) {
   const cartItems = document.getElementById('cartItems')
 
   for (let i = 0; i < array.length; i++) {
-    console.log(array[i])
     const image = JSON.parse(array[i].images)[0]
-    console.log(array[i].cost)
     cartItems.innerHTML += `
     <div class="row align-items-center text-center g-3 my-1 border-bottom">
       <div class="col-6 col-md-2">

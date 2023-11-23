@@ -1,67 +1,67 @@
-const ORDER_ASC_BY_NAME = "AZ";
-const ORDER_DESC_BY_NAME = "ZA";
-const ORDER_BY_PROD_COUNT = "Cant.";
-let currentCategoriesArray = [];
-let currentSortCriteria = undefined;
-let minCount = undefined;
-let maxCount = undefined;
+const ORDER_ASC_BY_NAME = 'AZ'
+const ORDER_DESC_BY_NAME = 'ZA'
+const ORDER_BY_PROD_COUNT = 'Cant.'
+let currentCategoriesArray = []
+let currentSortCriteria = undefined
+let minCount = undefined
+let maxCount = undefined
 
 // Bloque encargado del cierre de sesión
-document.getElementById("cerrar_sesion").addEventListener("click", (a) => {
-  localStorage.removeItem("userStatus");
-  localStorage.removeItem("currentUser");
-  window.location.href = "login.html";
-});
+document.getElementById('cerrar_sesion').addEventListener('click', (a) => {
+  localStorage.removeItem('userStatus')
+  localStorage.removeItem('currentUser')
+  window.location.href = 'login.html'
+})
 
 function sortCategories(criteria, array) {
-  let result = [];
+  let result = []
   if (criteria === ORDER_ASC_BY_NAME) {
     result = array.sort(function (a, b) {
       if (a.name < b.name) {
-        return -1;
+        return -1
       }
       if (a.name > b.name) {
-        return 1;
+        return 1
       }
-      return 0;
-    });
+      return 0
+    })
   } else if (criteria === ORDER_DESC_BY_NAME) {
     result = array.sort(function (a, b) {
       if (a.name > b.name) {
-        return -1;
+        return -1
       }
       if (a.name < b.name) {
-        return 1;
+        return 1
       }
-      return 0;
-    });
+      return 0
+    })
   } else if (criteria === ORDER_BY_PROD_COUNT) {
     result = array.sort(function (a, b) {
-      let aCount = parseInt(a.productCount);
-      let bCount = parseInt(b.productCount);
+      let aCount = parseInt(a.productCount)
+      let bCount = parseInt(b.productCount)
 
       if (aCount > bCount) {
-        return -1;
+        return -1
       }
       if (aCount < bCount) {
-        return 1;
+        return 1
       }
-      return 0;
-    });
+      return 0
+    })
   }
 
-  return result;
+  return result
 }
 
 function setCatID(id) {
-  localStorage.setItem("catID", id);
-  window.location = "products.html";
+  localStorage.setItem('catID', id)
+  window.location = 'products.html'
 }
 
 function showCategoriesList() {
-  let htmlContentToAppend = "";
+  let htmlContentToAppend = ''
   for (let i = 0; i < currentCategoriesArray.length; i++) {
-    let category = currentCategoriesArray[i];
+    let category = currentCategoriesArray[i]
 
     if (
       (minCount == undefined ||
@@ -85,87 +85,95 @@ function showCategoriesList() {
                     </div>
                 </div>
             </div>
-            `;
+            `
     }
 
-    document.getElementById("cat-list-container").innerHTML =
-      htmlContentToAppend;
+    document.getElementById('cat-list-container').innerHTML =
+      htmlContentToAppend
   }
 }
 
 function sortAndShowCategories(sortCriteria, categoriesArray) {
-  currentSortCriteria = sortCriteria;
+  currentSortCriteria = sortCriteria
 
   if (categoriesArray != undefined) {
-    currentCategoriesArray = categoriesArray;
+    currentCategoriesArray = categoriesArray
   }
 
   currentCategoriesArray = sortCategories(
     currentSortCriteria,
     currentCategoriesArray
-  );
+  )
 
   //Muestro las categorías ordenadas
-  showCategoriesList();
+  showCategoriesList()
 }
 
-document.addEventListener("DOMContentLoaded", function (e) {
+document.addEventListener('DOMContentLoaded', function (e) {
   getUser()
-  getUserStatus();
-  showUser();
-  temaActivo();
+  getUserStatus()
+  showUser()
+  temaActivo()
 
-  getJSONData(CATEGORIES_URL).then(function (resultObj) {
-    if (resultObj.status === "ok") {
-      currentCategoriesArray = resultObj.data;
-      showCategoriesList();
-    }
-  });
+  fetch(CATEGORIES_URL, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      authorization: localStorage.getItem('token'),
+    },
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      console.log(data)
+      currentCategoriesArray = data
 
-  document.getElementById("sortAsc").addEventListener("click", function () {
-    sortAndShowCategories(ORDER_ASC_BY_NAME);
-  });
+      showCategoriesList()
+    })
 
-  document.getElementById("sortDesc").addEventListener("click", function () {
-    sortAndShowCategories(ORDER_DESC_BY_NAME);
-  });
+  document.getElementById('sortAsc').addEventListener('click', function () {
+    sortAndShowCategories(ORDER_ASC_BY_NAME)
+  })
 
-  document.getElementById("sortByCount").addEventListener("click", function () {
-    sortAndShowCategories(ORDER_BY_PROD_COUNT);
-  });
+  document.getElementById('sortDesc').addEventListener('click', function () {
+    sortAndShowCategories(ORDER_DESC_BY_NAME)
+  })
 
-  document
-    .getElementById("clearRangeFilter")
-    .addEventListener("click", function () {
-      document.getElementById("rangeFilterCountMin").value = "";
-      document.getElementById("rangeFilterCountMax").value = "";
-
-      minCount = undefined;
-      maxCount = undefined;
-
-      showCategoriesList();
-    });
+  document.getElementById('sortByCount').addEventListener('click', function () {
+    sortAndShowCategories(ORDER_BY_PROD_COUNT)
+  })
 
   document
-    .getElementById("rangeFilterCount")
-    .addEventListener("click", function () {
+    .getElementById('clearRangeFilter')
+    .addEventListener('click', function () {
+      document.getElementById('rangeFilterCountMin').value = ''
+      document.getElementById('rangeFilterCountMax').value = ''
+
+      minCount = undefined
+      maxCount = undefined
+
+      showCategoriesList()
+    })
+
+  document
+    .getElementById('rangeFilterCount')
+    .addEventListener('click', function () {
       //Obtengo el mínimo y máximo de los intervalos para filtrar por cantidad
       //de productos por categoría.
-      minCount = document.getElementById("rangeFilterCountMin").value;
-      maxCount = document.getElementById("rangeFilterCountMax").value;
+      minCount = document.getElementById('rangeFilterCountMin').value
+      maxCount = document.getElementById('rangeFilterCountMax').value
 
-      if (minCount != undefined && minCount != "" && parseInt(minCount) >= 0) {
-        minCount = parseInt(minCount);
+      if (minCount != undefined && minCount != '' && parseInt(minCount) >= 0) {
+        minCount = parseInt(minCount)
       } else {
-        minCount = undefined;
+        minCount = undefined
       }
 
-      if (maxCount != undefined && maxCount != "" && parseInt(maxCount) >= 0) {
-        maxCount = parseInt(maxCount);
+      if (maxCount != undefined && maxCount != '' && parseInt(maxCount) >= 0) {
+        maxCount = parseInt(maxCount)
       } else {
-        maxCount = undefined;
+        maxCount = undefined
       }
 
-      showCategoriesList();
-    });
-});
+      showCategoriesList()
+    })
+})

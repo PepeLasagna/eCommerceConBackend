@@ -5,8 +5,11 @@ const PROD_ID = localStorage.getItem('prodID')
 const CATEGORIES_URL = 'http://localhost:3000/categories'
 const PRODUCTS_URL = `http://localhost:3000/products/${CAT_ID}`
 const PRODUCT_INFO_URL = `http://localhost:3000/product-info/${PROD_ID}`
+const CART = 'http://localhost:3000/cart'
 const CART_INFO_URL = 'http://localhost:3000/cart/1'
 const USER_INFO = 'http://localhost:3000/users'
+
+const COMMENTS = `http://localhost:3000/comments/${PROD_ID}`
 
 // Se encarga de mostrar u ocultar un spinner en la página
 let showSpinner = function () {

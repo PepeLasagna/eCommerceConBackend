@@ -11,19 +11,21 @@ const signToken = (user) => {
 }
 
 const verifyToken = (req, res, next) => {
-  const token = req.headers.authorization
-  if (!token) {
+  const tokenString = req.headers.authorization
+
+  if (!tokenString) {
     return res.status(401).json({ error: 'No token provided' })
   }
 
-  jwt.verify(token, process.env.SECRET ?? secretKey, (err, decoded) => {
-    if (err) {
-      return res.status(401).json({ error: 'Invalid token' })
-    }
-
-    req.userId = decoded.id
+  try {
+    const token = JSON.parse(tokenString)
+    const decoded = jwt.verify(token, process.env.SECRET || secretKey)
+    req.user = decoded
     next()
-  })
+  } catch (error) {
+    console.error(error)
+    return res.status(401).json({ error: 'Invalid token' })
+  }
 }
 
 module.exports = { signToken, verifyToken }

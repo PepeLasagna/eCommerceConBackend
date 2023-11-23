@@ -13,8 +13,9 @@ const getCartByID = async (req, res) => {
 }
 
 const addItem = async (req, res) => {
-  const { id, item} = req.body
-  const added = await cartModel.addItem(id, item)
+  const item = req.body
+  const token = req.headers.authorization
+  const added = await cartModel.addItem(token, item)
   if (added) {
     res.json({ message: 'Se ha agregado el item al carrito' })
   } else {

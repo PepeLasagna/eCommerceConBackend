@@ -1,16 +1,15 @@
 //CONSTANTES
-const BTN = document.getElementById("btn");
-const COMMENTS_CONTAINER = document.getElementById("commentsContainer");
+const BTN = document.getElementById('btn')
+const COMMENTS_CONTAINER = document.getElementById('commentsContainer')
 
 // Bloque encargado del cierre de sesión
-document.getElementById("cerrar_sesion").addEventListener("click", (a) => {
-  localStorage.removeItem("userStatus");
-  localStorage.removeItem("currentUser");
-  window.location.href = "login.html";
-});
+document.getElementById('cerrar_sesion').addEventListener('click', (a) => {
+  localStorage.removeItem('token')
+  window.location.href = 'login.html'
+})
 
 //Carta del producto
-let cardsContainer = document.getElementById("cardsContainer");
+let cardsContainer = document.getElementById('cardsContainer')
 
 function producto(data) {
   const images = JSON.parse(data[0].images)
@@ -122,46 +121,45 @@ function producto(data) {
     </div>
   </div>
 </div>
-`;
+`
 }
 
 //Toast para confirmar que se agregó el prodcuto
 function toast() {
-  let toast = document.getElementById("liveToast");
-  var liveToast = new bootstrap.Toast(toast);
-  liveToast.show();
+  let toast = document.getElementById('liveToast')
+  var liveToast = new bootstrap.Toast(toast)
+  liveToast.show()
 }
 
 //COUNT FUNCTION
-let COUNT = 1;
+let COUNT = 1
 function count(valor) {
-  COUNT = valor;
+  COUNT = valor
 }
 
 //Función que guarda la info del producto
-let productInfo;
+let productInfo
 
 function info(data) {
-  productInfo = data;
+  productInfo = data
 }
-
 
 //Se cambia el nombre del toast para cuando se agrega un producto al carrito
 
-let toastName = document.getElementById("toastName");
+let toastName = document.getElementById('toastName')
 
 function toastSpan() {
-  toastName.innerHTML = productInfo.name;
+  toastName.innerHTML = productInfo.name
 }
 
 //Guarda el id del producto
 function setProdID(id) {
-  localStorage.setItem("prodID", id);
-  window.location = "product-info.html";
+  localStorage.setItem('prodID', id)
+  window.location = 'product-info.html'
 }
 
 //Función que agrega productos relacionados en la información del productoa
-let productosRelacionados = document.getElementById("productosRelacionados");
+let productosRelacionados = document.getElementById('productosRelacionados')
 
 function productoRelacionado(data) {
   for (let i = 0; i < data.length; i++)
@@ -176,52 +174,53 @@ function productoRelacionado(data) {
         <p class="card-text">${data[i].name}</p>
       </div>
     </div>
-    `;
+    `
 }
 
-document.addEventListener("DOMContentLoaded", function (e) {
+document.addEventListener('DOMContentLoaded', function (e) {
   getUser()
-  getUserStatus();
-  showUser();
-  temaActivo();
+  getUserStatus()
+  showUser()
+  temaActivo()
 
   //Fetch que utiliza la información del producto
   getJSONData(PRODUCT_INFO_URL).then(function (resultObj) {
-    if (resultObj.status === "ok") {
-      info(resultObj.data);
-      producto(resultObj.data);
-      productoRelacionado(resultObj.data[0].related_products);
+    if (resultObj.status === 'ok') {
+      info(resultObj.data)
+      producto(resultObj.data)
+      productoRelacionado(resultObj.data[0].related_products)
     }
-  });
+  })
 
-  //Fetch para los comentarios
-  // getJSONData(PRODUCT_INFO_COMMENTS_URL).then(function (resultObj) {
-  //   if (resultObj.status === "ok") {
-  //     comentarios(resultObj.data);
-  //   }
-  // });
-});
+  getJSONData(COMMENTS).then(function (resultObj) {
+    if (resultObj.status === 'ok') {
+      comentarios(resultObj.data)
+    }
+  })
+})
 
 //Contenedor de comentarios
 function comentarios(data) {
   data.forEach((element) => {
-    COMMENTS_CONTAINER.innerHTML += `<div class="card">
-<div class="card-body">
-  <h5>${element.user} | ${element.dateTime}</h5><br>
-  ${element.description}<br><br>
-  ${mostrarEstrellas(element.score)}
-</div>
-</div>
-<br>`;
-  });
+    COMMENTS_CONTAINER.innerHTML += `
+      <div class="card">
+        <div class="card-body">
+          <h5>${element.first_name} | ${element.email}</h5>
+            <p>${element.description}</p>
+            ${mostrarEstrellas(element.score)}
+            <p>${element.date_time}</p>
+        </div>
+      </div>
+      `
+  })
 }
 
 //Esta funcion agrega un comentario de forma manual, agregando también la puntuación.
 function addComment() {
-  let comment = document.getElementById("comment").value;
-  let rating = document.getElementById("rating").value;
-  let date = new Date().toLocaleString();
-  let email = JSON.parse(localStorage.getItem("currentUser"))[0].email;
+  let comment = document.getElementById('comment').value
+  let rating = document.getElementById('rating').value
+  let date = new Date().toLocaleString()
+  let email = JSON.parse(localStorage.getItem('currentUser'))[0].email
 
   //Plantilla
   COMMENTS_CONTAINER.innerHTML += `
@@ -234,54 +233,44 @@ function addComment() {
       </div>
     </div>
     <br />
-  `;
+  `
   //
-  document.getElementById("comment").value = "";
-  document.getElementById("rating").value = 1;
+  document.getElementById('comment').value = ''
+  document.getElementById('rating').value = 1
 }
 
 //Funcion que genera estrellas
 
 function mostrarEstrellas(puntaje) {
-  let estrellas = [];
+  let estrellas = []
   //El primer  (for) te devuelve x estrellas pintadas
   for (let i = 0; i < puntaje; i++) {
-    estrellas.push("<span class='fa fa-star checked'></span>");
+    estrellas.push("<span class='fa fa-star checked'></span>")
   }
   //El segundo (for) te devuelve 5-x sin pintar
   for (let j = 0; j < 5 - puntaje; j++) {
-    estrellas.push("<span class='fa fa-star'></span>");
+    estrellas.push("<span class='fa fa-star'></span>")
   }
   //El (join) hace que los (elementos) del array se unan
-  return estrellas.join("");
+  return estrellas.join('')
 }
 
 //Función que guarda un elemento en el carrito
 function currentProd(product) {
-  let prodArray = JSON.parse(localStorage.getItem("carrito")) || [];
-  const existingProduct = prodArray.find((item) => item.id === product.id);
-//Si el producto ya existe solo altera el count
-  if (existingProduct) {
-    existingProduct.count = COUNT;
-//Si el producto no existe
-  } else {
-    const producto = {
-      id: product.id,
-      name: product.name,
-      count: COUNT,
-      unitCost: product.cost,
-      currency: product.currency,
-      image: product.images[0],
-    };
-    prodArray.push(producto);
+  const token = JSON.parse(localStorage.getItem('token'))
+  const item = {
+    id: product[0].id,
+    quantity: COUNT,
   }
-  localStorage.setItem("carrito", JSON.stringify(prodArray));
-  toast();
-  document.getElementById("buy_input").value = 0;
+  fetch(CART, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      authorization: token,
+    },
+    body: JSON.stringify(item),
+  }).then((res) => res.json())
+
+  toast()
+  document.getElementById('buy_input').value = 0
 }
-
-
-// let comprar = document.querySelector(".comprar")
-
-// comprar.forEach(elemento => {})
-

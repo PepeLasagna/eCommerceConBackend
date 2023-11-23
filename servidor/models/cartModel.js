@@ -1,4 +1,6 @@
 const mariadb = require('mariadb')
+const jwt = require('jsonwebtoken')
+const secretKey = 'This is a secret key to decode the token'
 
 const pool = mariadb.createPool({
   host: 'localhost',
@@ -28,24 +30,28 @@ const getCartByID = async (id) => {
   return false
 }
 
-const addItem = async (id, item) => {
+const addItem = async (token, item) => {
   let conn
   try {
     conn = await pool.getConnection()
+    const email = jwt.verify(token, process.env.SECRET ?? secretKey)
+    const user = await conn.query('SELECT id FROM users WHERE email = ?', [
+      email,
+    ])
     const hasProduct = await conn.query(
       'SELECT * FROM cart WHERE prod_id=? AND user_id=? AND status=?',
-      [item.product_id, id, 'pending']
+      [item.id, user[0].id, 'pending']
     )
     if (hasProduct.length > 0) {
       await conn.query(
         'UPDATE cart SET quantity = ? WHERE user_id = ? AND prod_id = ? AND status=?',
-        [item.quantity, id, item.product_id, 'pending']
+        [item.quantity, user[0].id, item.id, 'pending']
       )
       return true
     } else {
       await conn.query(
         'INSERT INTO cart (user_id, prod_id, quantity) VALUES (?, ?, ?)',
-        [id, item.product_id, item.quantity]
+        [user[0].id, item.id, item.quantity]
       )
       return true
     }
