@@ -12,13 +12,13 @@ const pool = mariadb.createPool({
   connectionLimit: '5',
 })
 
-const getUserByToken = async (email) => {
+const getUserByToken = async (id) => {
   let conn
   try {
     conn = await pool.getConnection()
     const foundUser = await conn.query(
-      'SELECT first_name, second_name, last_name, second_last_name, email, password, phone, avatar FROM users WHERE email=?',
-      [email]
+      'SELECT first_name, second_name, last_name, second_last_name, email, password, phone, avatar FROM users WHERE id=?',
+      [id]
     )
     if (foundUser.length > 0) {
       return foundUser
@@ -40,7 +40,7 @@ const getUser = async (user) => {
   try {
     conn = await pool.getConnection()
     const foundUser = await conn.query(
-      'SELECT first_name, second_name, last_name, second_last_name, email, password, phone, avatar FROM users WHERE email=? AND password=?',
+      'SELECT id, first_name, second_name, last_name, second_last_name, email, password, phone, avatar FROM users WHERE email=? AND password=?',
       [user.email, user.password]
     )
     if (foundUser.length > 0) {
@@ -77,21 +77,21 @@ const createUser = async (user) => {
   return false
 }
 
-const modifyUser = async (user) => {
+const modifyUser = async (user, id) => {
   let conn
   try {
     conn = await pool.getConnection()
     await conn.query(
-      'UPDATE users SET (email, password, first_name, second_name, last_name, second_last_name, phone, avatar) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      'UPDATE users SET email=?, first_name=?, second_name=?, last_name=?, second_last_name=?, phone=?, avatar=? WHERE id=?',
       [
         user.email,
-        user.password,
         user.first_name,
         user.second_name,
         user.last_name,
         user.second_last_name,
         user.phone,
-        user.avatar,
+        user.avatar || '',
+        id,
       ]
     )
     return true

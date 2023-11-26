@@ -25,7 +25,7 @@ const getComments = async (id) => {
   }
 }
 
-const postComment = async (comment) => {
+const postComment = async (comment, id) => {
   let conn
   try {
     conn = await pool.getConnection()
@@ -36,10 +36,11 @@ const postComment = async (comment) => {
         comment.description,
         comment.date_time,
         comment.prod_id,
-        comment.user_id,
+        id,
       ]
     )
-    return true
+
+    return comment
   } catch (error) {
     console.log(error)
   } finally {

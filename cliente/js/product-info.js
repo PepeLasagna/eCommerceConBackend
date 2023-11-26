@@ -183,24 +183,36 @@ document.addEventListener('DOMContentLoaded', function (e) {
   showUser()
   temaActivo()
 
-  //Fetch que utiliza la información del producto
-  getJSONData(PRODUCT_INFO_URL).then(function (resultObj) {
-    if (resultObj.status === 'ok') {
-      info(resultObj.data)
-      producto(resultObj.data)
-      productoRelacionado(resultObj.data[0].related_products)
-    }
+  fetch(PRODUCT_INFO_URL, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      authorization: JSON.parse(localStorage.getItem('token')),
+    },
   })
+    .then((res) => res.json())
+    .then((data) => {
+      info(data)
+      producto(data)
+      productoRelacionado(data[0].related_products)
+    })
 
-  getJSONData(COMMENTS).then(function (resultObj) {
-    if (resultObj.status === 'ok') {
-      comentarios(resultObj.data)
-    }
+  fetch(COMMENTS, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      authorization: JSON.parse(localStorage.getItem('token')),
+    },
   })
+    .then((res) => res.json())
+    .then((data) => {
+      comentarios(data)
+    })
 })
 
 //Contenedor de comentarios
 function comentarios(data) {
+  COMMENTS_CONTAINER.innerHTML = ''
   data.forEach((element) => {
     COMMENTS_CONTAINER.innerHTML += `
       <div class="card">
@@ -217,28 +229,13 @@ function comentarios(data) {
 
 //Esta funcion agrega un comentario de forma manual, agregando también la puntuación.
 function addComment() {
-  let comment = document.getElementById('comment').value
-  let rating = document.getElementById('rating').value
-  let date = new Date().toLocaleString()
-  let email = JSON.parse(localStorage.getItem('currentUser'))[0].email
+  let commentForm = commentForm((comment, rating, date, prod_id))
 
-  //Plantilla
-  COMMENTS_CONTAINER.innerHTML += `
-  <div class="card">
-      <div class="card-body">
-        <h5>${email} | ${date}</h5>
-        <br />
-        ${comment}<br /><br />
-        ${mostrarEstrellas(rating)}
-      </div>
-    </div>
-    <br />
-  `
-  //
   document.getElementById('comment').value = ''
   document.getElementById('rating').value = 1
 }
 
+//Plantilla para el fetch del comentario
 //Funcion que genera estrellas
 
 function mostrarEstrellas(puntaje) {
@@ -274,3 +271,103 @@ function currentProd(product) {
   toast()
   document.getElementById('buy_input').value = 0
 }
+
+//SECCIÓN DE COMENTARIOS
+
+const COMMENT = document.getElementById('comment')
+const RATING = document.getElementById('rating')
+const COMBTN = document.getElementById('comBtn')
+
+function disabledBTN() {
+  if (
+    COMMENT.checkValidity() &&
+    RATING.checkValidity() &&
+    RATING.value !== ''
+  ) {
+    COMBTN.removeAttribute('disabled')
+  }
+}
+
+COMMENT.addEventListener('input', () => {
+  const isValid = COMMENT.checkValidity()
+
+  if (isValid) {
+    COMMENT.classList.remove('is-invalid')
+    COMMENT.classList.add('is-valid')
+  } else {
+    COMMENT.classList.remove('is-valid')
+    COMMENT.classList.add('is-invalid')
+  }
+  disabledBTN()
+})
+
+RATING.addEventListener('input', () => {
+  const isValid = RATING.checkValidity()
+
+  if (isValid) {
+    RATING.classList.remove('is-invalid')
+    RATING.classList.add('is-valid')
+  } else {
+    RATING.classList.remove('is-valid')
+    RATING.classList.add('is-invalid')
+  }
+  disabledBTN()
+})
+
+function commentaryForm(comment, rating, date, prod_id) {
+  let commentary = {
+    score: rating,
+    description: comment,
+    date_time: date,
+    prod_id: prod_id,
+  }
+
+  return commentary
+}
+
+document.getElementById('commentForm').addEventListener('submit', (e) => {
+
+
+  e.preventDefault()
+  
+  let date = new Date().toLocaleString()
+  let prod_id = localStorage.getItem('prodID')
+  let token = localStorage.getItem('token')
+
+  let commentValue = COMMENT.value
+  let ratingValue = RATING.value
+
+  let commentary = commentaryForm(commentValue, ratingValue, date, prod_id)
+
+  console.log(commentary)
+
+  fetch(COMMENTSPOST, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      authorization: JSON.parse(token),
+    },
+    body: JSON.stringify(commentary),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      // Puedes manejar la respuesta del servidor si es necesario
+      console.log(data)
+    })
+    .catch((error) => {
+      e.stopImmediatePropagation()
+      console.error('Error al agregar el comentario: ', error)
+    })
+
+    fetch(COMMENTS, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: JSON.parse(localStorage.getItem('token')),
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        comentarios(data)
+      })
+})

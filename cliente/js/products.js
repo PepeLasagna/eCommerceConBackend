@@ -121,13 +121,18 @@ document.addEventListener('DOMContentLoaded', function (e) {
   showUser()
   temaActivo()
 
-  getJSONData(PRODUCTS_URL).then(function (resultObj) {
-    if (resultObj.status === 'ok') {
-      currentCategoriesArray = resultObj.data
-      console.log(resultObj.data)
-      showCategoriesList()
-    }
+  fetch(PRODUCTS_URL, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'authorization': JSON.parse(localStorage.getItem('token')),
+    },
   })
+    .then(res => res.json())
+    .then(data => {
+      currentCategoriesArray = data
+      showCategoriesList()
+    })
 
   document.getElementById('sortAsc').addEventListener('click', function () {
     sortAndShowCategories(ORDER_ASC_BY_COST)

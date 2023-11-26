@@ -1,7 +1,7 @@
 const cartModel = require('../models/cartModel.js')
 
 const getCartByID = async (req, res) => {
-  const id = req.params.id
+  const id = req.user_id
   const cart = await cartModel.getCartByID(id)
   if (cart) {
     res.json(cart)
@@ -24,9 +24,9 @@ const addItem = async (req, res) => {
 }
 
 const removeItem = async (req, res) => {
-  const id = req.params.id
-  const item = req.body
-  const removed = await cartModel.removeItem(id, item)
+  const user_id = req.user_id
+  const item_id = req.params.id
+  const removed = await cartModel.removeItem(user_id, item_id)
   if (removed) {
     res.json({ message: 'Se ha eliminado el item del carrito' })
   } else {
@@ -35,7 +35,7 @@ const removeItem = async (req, res) => {
 }
 
 const completeBuy = async (req, res) => {
-  const id = req.params.id
+  const id = req.user_id
   const completed = await cartModel.completeBuy(id)
   if (completed) {
     res.json({ message: 'Se ha realizado la compra de compra' })

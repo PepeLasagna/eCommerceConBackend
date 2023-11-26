@@ -5,11 +5,17 @@ document.addEventListener('DOMContentLoaded', function () {
   showUser()
 
   //Fetch para la información del carrito de compras
-  getJSONData(CART_INFO_URL).then(function (resultObj) {
-    if (resultObj.status === 'ok') {
-      showCartItems(resultObj.data)
-    }
+  fetch(CART, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      authorization: JSON.parse(localStorage.getItem('token')),
+    },
   })
+    .then((res) => res.json())
+    .then((data) => {
+      showCartItems(data)
+    })
 })
 
 // Bloque encargado del cierre de sesión
@@ -81,154 +87,107 @@ function calcTotal(valorEnvio) {
 }
 
 function removeProduct(elemento, id) {
-  let productos = JSON.parse(localStorage.getItem('carrito')) || []
-  let filtrados = productos.filter((elemento) => elemento.id != id)
-  localStorage.setItem('carrito', JSON.stringify(filtrados))
+  fetch(`http://localhost:3000/cart/${id}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      authorization: JSON.parse(localStorage.getItem('token')),
+    },
+  })
   elemento.parentElement.parentElement.remove()
   calcTotal()
 }
 
-function validateInput(input, event) {
+function validateInput(input) {
   if (!input.checkValidity()) {
     input.setAttribute('class', 'form-control is-invalid')
-    event.preventDefault()
+    return false
   } else {
     input.setAttribute('class', 'form-control is-valid')
+    return true
   }
 }
 
-//Proceso de validación
-let miFormulario = document.getElementById('formEnvio')
-miFormulario.addEventListener('submit', (e) => {
+document.getElementById('formEnvio').addEventListener('submit', (e) => {
+  e.preventDefault()
+
   let calle = document.getElementById('calle')
   let numero = document.getElementById('numero')
-  let esquina = document.getElementById('esquina')
   let ciudad = document.getElementById('ciudad')
+  let esquina = document.getElementById('esquina')
   let departamento = document.getElementById('departamento')
   let codigo_postal = document.getElementById('codigo_postal')
-  let premium = document.getElementById('premium')
-  let express = document.getElementById('express')
-  let estandar = document.getElementById('estandar')
 
-  validateInput(calle, e)
-  validateInput(numero, e)
-  validateInput(esquina, e)
-  validateInput(ciudad, e)
-  validateInput(departamento, e)
-  validateInput(codigo_postal, e)
+  let bank_account = document.getElementById('payment-bank-account')
+  let credit_card = document.getElementById('payment-credit-card')
+
+  console.log(bank_account)
+  console.log(credit_card)
+
+  validateInput(calle)
+  validateInput(numero)
+  validateInput(ciudad)
+  validateInput(esquina)
+  validateInput(departamento)
+  validateInput(codigo_postal)
 
   if (
-    calle.checkValidity() &&
-    numero.checkValidity() &&
-    esquina.checkValidity() &&
-    ciudad.checkValidity() &&
-    departamento.checkValidity() &&
-    codigo_postal.checkValidity() &&
-    ((cardNum.checkValidity() &&
-      cardSec.checkValidity() &&
-      cardVen.checkValidity()) ||
-      cuenta.checkValidity()) &&
-    (credito.checkValidity() || transferencia.checkValidity())
+    (validateInput(calle) &&
+      validateInput(numero) &&
+      validateInput(ciudad) &&
+      validateInput(esquina) &&
+      validateInput(departamento) &&
+      validateInput(codigo_postal) &&
+      bank_account.checked) ||
+    credit_card.checked
   ) {
-    alert('Formulario enviado con éxito!')
-    localStorage.removeItem('carrito')
-    document.getElementById('cartItems').innerHTML = ''
+    console.log('Solicitud de compra enviada')
+    fetch(CART, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: JSON.parse(localStorage.getItem('token')),
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data)
+      })
   } else {
-    e.preventDefault()
+    return
   }
+})
 
-  if (credito.checked) {
-    if (!cardNum.checkValidity()) {
-      cardNum.setAttribute('class', 'form-control is-invalid')
-      e.preventDefault()
-      spanMetodo.setAttribute('style', 'color:red')
-    } else {
-      cardNum.setAttribute('class', 'form-control is-valid')
-      spanMetodo.setAttribute('style', 'color:white')
-    }
-    if (!cardSec.checkValidity()) {
-      cardSec.setAttribute('class', 'form-control is-invalid')
-      e.preventDefault()
-      spanMetodo.setAttribute('style', 'color:red')
-    } else {
-      cardSec.setAttribute('class', 'form-control is-valid')
-      spanMetodo.setAttribute('style', 'color:white')
-    }
-    if (!cardVen.checkValidity()) {
-      cardVen.setAttribute('class', 'form-control is-invalid')
-      e.preventDefault()
-      spanMetodo.setAttribute('style', 'color:red')
-    } else {
-      cardVen.setAttribute('class', 'form-control is-valid')
-      spanMetodo.setAttribute('style', 'color:white')
-    }
-  } else if (transferencia.checked) {
-    if (!cuenta.checkValidity()) {
-      cuenta.setAttribute('class', 'form-control is-invalid')
-      e.preventDefault()
-      spanMetodo.setAttribute('style', 'color:red')
-    } else {
-      cuenta.setAttribute('class', 'form-control is-valid')
-      spanMetodo.setAttribute('style', 'color:white')
-    }
+//Detalles en el modal de pago
+
+let bank_account = document.getElementById('payment-bank-account')
+let credit_card = document.getElementById('payment-credit-card')
+let bank_account_number = document.getElementById('bank-account-number')
+let credit_card_number = document.getElementById('credit-card-number')
+let credit_card_sec_code = document.getElementById('credit-card-sec-code')
+let credit_card_exp_date = document.getElementById('credit-card-expire-date')
+
+document.getElementById('btnSeleccionar').addEventListener('click', (e) => {
+  let modal = document.getElementById('modalPago')
+  let textoPago = document.getElementById('display-metodo-pago')
+
+  if (bank_account.checked) {
+    textoPago.innerHTML = 'Cuenta de banco'
+  } else if (credit_card.checked) {
+    textoPago.innerHTML = 'Tarjeta de credito'
+  }
+})
+
+bank_account.addEventListener('change', () => {
+  credit_card_number.value = ''
+  credit_card_sec_code.value = ''
+  credit_card_exp_date.value = ''
+})
+
+credit_card.addEventListener('change', () => {
+  if (credit_card.checked) {
+    bank_account_number.value = ''
   } else {
-    e.preventDefault()
-    spanMetodo.setAttribute('style', 'color:red')
-  }
-})
-
-//Selección de método de compra
-let credito = document.getElementById('payment-credit-card')
-let cardNum = document.getElementById('credit-card-number')
-let cardSec = document.getElementById('credit-card-sec-code')
-let cardVen = document.getElementById('credit-card-expire-date')
-let cuenta = document.getElementById('bank-account-number')
-let transferencia = document.getElementById('payment-bank-account')
-let spanMetodo = document.getElementById('display-metodo-pago')
-let botonSeleccionar = document.getElementById('btnSeleccionar')
-
-credito.addEventListener('input', () => {
-  if (credito.checked == true) {
-    cuenta.setAttribute('disabled', 'true')
-    cardNum.removeAttribute('disabled')
-    cardSec.removeAttribute('disabled')
-    cardVen.removeAttribute('disabled')
-    cuenta.value = ''
-    spanMetodo.textContent = 'El método seleccionado es: tarjeta de crédito'
-  }
-})
-
-transferencia.addEventListener('input', () => {
-  if (transferencia.checked == true) {
-    cardNum.setAttribute('disabled', 'true')
-    cardSec.setAttribute('disabled', 'true')
-    cardVen.setAttribute('disabled', 'true')
-    cuenta.removeAttribute('disabled')
-    cardNum.value = ''
-    cardSec.value = ''
-    cardVen.value = ''
-    spanMetodo.textContent = 'El método seleccionado es: transferencia'
-  }
-})
-
-botonSeleccionar.addEventListener('click', (event) => {
-  if (credito.checked) {
-    if (
-      !cardNum.checkValidity() ||
-      !cardSec.checkValidity() ||
-      !cardVen.checkValidity()
-    ) {
-      cardNum.reportValidity()
-      cardSec.reportValidity()
-      cardVen.reportValidity()
-    } else {
-      botonSeleccionar.setAttribute('data-bs-dismiss', 'modal')
-    }
-  } else if (transferencia.checked) {
-    if (!cuenta.checkValidity()) {
-      cuenta.reportValidity()
-    } else {
-      botonSeleccionar.setAttribute('data-bs-dismiss', 'modal')
-    }
+    return
   }
 })

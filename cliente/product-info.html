@@ -103,7 +103,7 @@
       <!-- Creamos la casilla de comentarios y las calificacion en estrellas -->
       <br /><br /><br />
       <div class="container">
-        <form>
+        <form id="commentForm" novalidate>
           <div class="form-group">
             <label for="comment">Deja tu comentario:</label>
             <textarea
@@ -112,12 +112,16 @@
               id="comment"
               rows="3"
               required
+              minlength="15"
+              maxlength="150"
             ></textarea>
+            <div class="invalid-feedback">Mínimo 15 caracteres, máximo 150.</div>
           </div>
           <div class="form-group">
             <br />
             <label for="rating">Calificación:</label>
-            <select class="form-select" name="rating" id="rating">
+            <select class="form-select" name="rating" id="rating" required>
+              <option disabled selected value=''>Califica el producto!</option>
               <option value="1">⭐</option>
               <option value="2">⭐⭐</option>
               <option value="3">⭐⭐⭐</option>
@@ -128,10 +132,10 @@
           <br />
           <div class="form-group">
             <button
-              id="btn"
-              type="button"
-              onclick="addComment()"
+              id="comBtn"
+              type="submit"
               class="btn btn-primary"
+              disabled
             >
               Enviar
             </button>

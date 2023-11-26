@@ -15,7 +15,7 @@ const getCartByID = async (id) => {
   try {
     conn = await pool.getConnection()
     const cart = await conn.query(
-      'SELECT p.name, p.cost, p.currency, p.images, c.quantity FROM cart c JOIN products p ON c.prod_id = p.id JOIN users u ON c.user_id = u.id WHERE u.id = ? AND c.status = ?',
+      'SELECT p.name, p.id, p.cost, p.currency, p.images, c.quantity FROM cart c JOIN products p ON c.prod_id = p.id JOIN users u ON c.user_id = u.id WHERE u.id = ? AND c.status = ?',
       [id, 'pending']
     )
 
@@ -34,9 +34,9 @@ const addItem = async (token, item) => {
   let conn
   try {
     conn = await pool.getConnection()
-    const email = jwt.verify(token, process.env.SECRET ?? secretKey)
-    const user = await conn.query('SELECT id FROM users WHERE email = ?', [
-      email,
+    const id = jwt.verify(token, process.env.SECRET ?? secretKey)
+    const user = await conn.query('SELECT id FROM users WHERE id = ?', [
+      id,
     ])
     const hasProduct = await conn.query(
       'SELECT * FROM cart WHERE prod_id=? AND user_id=? AND status=?',
@@ -65,13 +65,13 @@ const addItem = async (token, item) => {
   }
 }
 
-const removeItem = async (id, item) => {
+const removeItem = async (user_id, item_id) => {
   let conn
   try {
     conn = await pool.getConnection()
     await conn.query(
       'DELETE FROM cart WHERE user_id = ? AND prod_id = ? AND status=?',
-      [id, item.prod_id, 'pending']
+      [user_id, item_id, 'pending']
     )
     return true
   } catch (error) {

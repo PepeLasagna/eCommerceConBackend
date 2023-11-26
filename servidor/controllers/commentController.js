@@ -11,7 +11,9 @@ const getComments = async (req, res) => {
 }
 
 const postComment = async (req, res) => {
-  const comment = await commentModel.postComment(req.body)
+  const id = req.user_id
+  const {score, description, date_time, prod_id} = req.body
+  const comment = await commentModel.postComment({score, description, date_time, prod_id}, id)
   if (comment) {
     res.json(comment)
   } else {

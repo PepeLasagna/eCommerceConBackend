@@ -6,10 +6,12 @@ const CATEGORIES_URL = 'http://localhost:3000/categories'
 const PRODUCTS_URL = `http://localhost:3000/products/${CAT_ID}`
 const PRODUCT_INFO_URL = `http://localhost:3000/product-info/${PROD_ID}`
 const CART = 'http://localhost:3000/cart'
-const CART_INFO_URL = 'http://localhost:3000/cart/1'
+
 const USER_INFO = 'http://localhost:3000/users'
+const USER_REGISTER = 'http://localhost:3000/register'
 
 const COMMENTS = `http://localhost:3000/comments/${PROD_ID}`
+const COMMENTSPOST = `http://localhost:3000/comments`
 
 // Se encarga de mostrar u ocultar un spinner en la página
 let showSpinner = function () {
@@ -63,7 +65,12 @@ function getUser() {
     },
   })
     .then((res) => res.json())
-    .then((data) => showUser(data[0].first_name))
+    .then((data) => {
+      showUser(data[0].first_name)
+      if (window.location.href == 'http://localhost:8080/my-profile.html') {
+        loadUserData(data[0])
+      }
+    })
 }
 
 // Muestra el nombre de usuario en el navbar
@@ -97,9 +104,4 @@ const cambiarTema = () => {
   document.querySelector('body').getAttribute('data-bs-theme') === 'light'
     ? temaOscuro()
     : temaClaro()
-}
-
-function getUserData() {
-  const currentUser = JSON.parse(localStorage.getItem('currentUser'))
-  return currentUser
 }

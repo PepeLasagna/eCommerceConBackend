@@ -119,12 +119,11 @@ document.addEventListener('DOMContentLoaded', function (e) {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
-      authorization: localStorage.getItem('token'),
+      authorization: JSON.parse(localStorage.getItem('token')),
     },
   })
     .then((res) => res.json())
     .then((data) => {
-      console.log(data)
       currentCategoriesArray = data
 
       showCategoriesList()

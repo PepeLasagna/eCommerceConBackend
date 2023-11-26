@@ -2,8 +2,6 @@ document.addEventListener('DOMContentLoaded', function () {
   getUser()
   getUserStatus()
   temaActivo()
-  loadUserData()
-  showUser()
 })
 
 // Bloque encargado del cierre de sesión
@@ -27,50 +25,93 @@ let phone = document.getElementById('phone')
 
 FILE_INPUT.addEventListener('change', function (e) {
   const file = e.target.files[0]
+  console.log(file)
   if (file) {
     const reader = new FileReader()
     reader.onload = function (event) {
       const imageDataURL = event.target.result
-      const currentUser = getUserData()
-      currentUser.image = imageDataURL
-      localStorage.setItem('currentUser', JSON.stringify(currentUser))
+      console.log(imageDataURL)
+      PROFILE_PICTURE.src = imageDataURL
     }
     reader.readAsDataURL(file)
   }
 })
 
-function loadUserData() {
-  const currentUser = getUserData()
+function loadUserData(user) {
+  firstName.value = user.first_name || ''
+  middleName.value = user.second_name || ''
+  lastName.value = user.last_name || ''
+  middleLastName.value = user.second_last_name || ''
+  email.value = user.email || ''
+  phone.value = user.phone || ''
 
-  firstName.value = currentUser.firstName || ''
-  middleName.value = currentUser.middleName || ''
-  lastName.value = currentUser.lastName || ''
-  middleLastName.value = currentUser.middleLastName || ''
-  email.value = currentUser.email || ''
-  phone.value = currentUser.phone || ''
-
-  if (currentUser.image) {
-    PROFILE_PICTURE.src = currentUser.image
+  if (user.avatar) {
+    PROFILE_PICTURE.src = user.avatar
   }
 }
 
 saveButton.addEventListener('click', () => {
-  let currentUser = getUserData()
-  let usuarios = JSON.parse(localStorage.getItem('usuarios'))
+  let user = {
+    first_name: firstName.value,
+    second_name: middleName.value,
+    last_name: lastName.value,
+    second_last_name: middleLastName.value,
+    email: email.value,
+    phone: phone.value,
+  }
 
-  let index = usuarios.findIndex(
-    (element) => element.email === currentUser.email
-  )
-  currentUser.firstName = firstName.value
-  currentUser.middleName = middleName.value
-  currentUser.lastName = lastName.value
-  currentUser.middleLastName = middleLastName.value
-  currentUser.phone = phone.value
+  const file = FILE_INPUT.files[0]
+  if (file) {
+    const reader = new FileReader()
+    reader.onload = function (event) {
+      const imageDataURL = event.target.result
+      PROFILE_PICTURE.src = imageDataURL
+      user.avatar = imageDataURL
 
-  usuarios[index] = currentUser
-  localStorage.setItem('usuarios', JSON.stringify(usuarios))
-  localStorage.setItem('currentUser', JSON.stringify(currentUser))
-  loadUserData()
-
-  alert("Tu perfil ha sido actualizado")
+      // Llamar a la función que maneja la carga de la imagen
+      uploadImage(user)
+    }
+    reader.readAsDataURL(file)
+  } else {
+    // Si no hay archivo, solo actualizar la información del usuario sin avatar
+    updateUser(user)
+  }
 })
+
+function uploadImage(user) {
+  const formData = new FormData()
+  formData.append('avatar', FILE_INPUT.files[0])
+
+  fetch(USER_INFO, {
+    method: 'POST',
+    headers: {
+      authorization: JSON.parse(localStorage.getItem('token')),
+    },
+    body: formData,
+  })
+  .then(response => response.json())
+  .then(data => {
+    // Puedes manejar la respuesta del servidor si es necesario
+    console.log(data)
+
+    // Ahora que la imagen está subida, actualiza el resto de la información del usuario
+    updateUser(user)
+  })
+  .catch(error => {
+    console.error('Error al subir la imagen:', error);
+  });
+}
+
+function updateUser(user) {
+  fetch(USER_INFO, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      authorization: JSON.parse(localStorage.getItem('token')),
+    },
+    body: JSON.stringify(user),
+  })
+    .then(res => console.log(res))
+
+  alert('Tu perfil ha sido actualizado')
+}

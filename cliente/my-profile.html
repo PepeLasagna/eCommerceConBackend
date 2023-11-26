@@ -88,7 +88,7 @@
       <div class="container">
         <div class="row my-5">
           <div class="col-6">
-            <h1>Perfil</h1>
+            <h1 class="text-center">Perfil</h1>
           </div>
           <div class="col-6 d-flex justify-content-end">
             <img
@@ -100,27 +100,27 @@
         </div>
         <form id="userProfileForm">
           <label for="firstName">Nombre*:</label>
-          <input type="text" id="firstName" required /><br />
+          <input class="form-control" type="text" id="firstName" required /><br />
 
           <label for="middleName">Segundo nombre:</label>
-          <input type="text" id="middleName" /><br />
+          <input class="form-control" type="text" id="middleName" /><br />
 
           <label for="lastName">Apellido*:</label>
-          <input type="text" id="lastName" required /><br />
+          <input class="form-control" type="text" id="lastName" required /><br />
 
           <label for="middleLastName">Segundo apellido:</label>
-          <input type="text" id="middleLastName" /><br />
+          <input class="form-control" type="text" id="middleLastName" /><br />
 
           <label for="email">E-mail*:</label>
-          <input type="email" id="loginemail" required disabled /><br />
+          <input class="form-control" type="email" id="loginemail" required disabled /><br />
 
           <label for="phone">Teléfono de contacto:</label>
-          <input type="tel" id="phone" /><br />
+          <input class="form-control" type="text" id="phone" /><br />
 
           <label for="img">Imágen</label>
-          <input type="file" id="fileInput" />
+          <input class="form-control" type="file" id="fileInput" /> <br>
 
-          <button type="button" id="saveButton">Guardar</button>
+          <button class="btn btn-success" type="button" id="saveButton">Guardar</button>
         </form>
       </div>
     </main>

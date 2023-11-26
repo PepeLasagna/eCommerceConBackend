@@ -10,17 +10,15 @@ const signToken = (user) => {
   }
 }
 
-const verifyToken = (req, res, next) => {
-  const tokenString = req.headers.authorization
-
-  if (!tokenString) {
+const verifyToken = async (req, res, next) => {
+  const token = req.headers.authorization
+  if (!token) {
     return res.status(401).json({ error: 'No token provided' })
   }
 
   try {
-    const token = JSON.parse(tokenString)
     const decoded = jwt.verify(token, process.env.SECRET || secretKey)
-    req.user = decoded
+    req.user_id = decoded
     next()
   } catch (error) {
     console.error(error)

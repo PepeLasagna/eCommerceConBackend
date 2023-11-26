@@ -7,8 +7,8 @@ const getUser = async (req, res) => {
   const { email, password } = req.body
   const user = await userModel.getUser({ email, password })
   if (user.length > 0) {
-    console.log(user[0].email)
-    const token = jwt.sign(user[0].email, process.env.SECRET ?? secretKey)
+    console.log(user[0].id)
+    const token = jwt.sign(user[0].id, process.env.SECRET ?? secretKey)
     res.json(token)
   } else {
     res.status(404).json(false)
@@ -20,8 +20,8 @@ const getUserByToken = async (req, res) => {
   if (!token) {
     return res.status(401).json({ error: 'No token provided' })
   }
-  const email = jwt.verify(token, process.env.SECRET ?? secretKey)
-  const currentUser = await userModel.getUserByToken(email)
+  const id = jwt.verify(token, process.env.SECRET ?? secretKey)
+  const currentUser = await userModel.getUserByToken(id)
   if (currentUser) {
     res.json(currentUser)
   } else {
@@ -43,13 +43,16 @@ const createUser = async (req, res) => {
   })
   if (user) {
     res.json(user)
+  } else if (user.code == 'ERR_DUP_ENTRY') {
+    res.status(500).json({ error: 'Usuario ya existente' })
   } else {
     res.status(500).json({ error: 'No se pudo crear el usuario' })
   }
 }
 
 const modifyUser = async (req, res) => {
-  const user = await userModel.modifyUser(req.body)
+  const id = req.user_id
+  const user = await userModel.modifyUser(req.body, id)
   if (user) {
     res.json(user)
   } else {
